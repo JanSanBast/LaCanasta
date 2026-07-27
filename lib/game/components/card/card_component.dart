@@ -1,5 +1,5 @@
 import 'package:canasta_app/domain/models/card.dart';
-import 'package:canasta_app/game/components/card_sprite_resolver.dart';
+import 'package:canasta_app/game/components/card/card_sprite_resolver.dart';
 import 'package:flame/components.dart';
 
 class CardComponent extends SpriteComponent
