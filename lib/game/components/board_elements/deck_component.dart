@@ -1,6 +1,8 @@
+import 'package:canasta_app/game/canasta_game.dart';
 import 'package:flame/components.dart';
+import 'package:flame/events.dart';
 
-class DeckComponent extends PositionComponent
+class DeckComponent extends PositionComponent with HasGameReference<CanastaGame>, TapCallbacks
 {
   final int stackSize;
 
@@ -28,5 +30,17 @@ class DeckComponent extends PositionComponent
 
       add(card);
     }
+  }
+
+  @override
+  void onTapDown(TapDownEvent event)
+  {
+    game.onDeckTapped();
+  }
+
+  @override
+  bool containsLocalPoint(Vector2 point)
+  {
+    return true;
   }
 }

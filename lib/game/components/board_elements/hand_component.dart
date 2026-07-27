@@ -9,46 +9,67 @@ class HandComponent extends PositionComponent
 
   final Vector2 anchorPosition;
 
-  final List<CardComponent> _cardComponents = [];
+  List<CardComponent> _cardComponents = [];
 
   HandComponent({required this.anchorPosition});
 
-  void setHand(List<Card> cards)
-  {
-    _cardComponents.removeWhere((component)
-    {
-      final stillInHand = cards.any((card) => card == component.card);
-      if (!stillInHand) component.removeFromParent();
-      return !stillInHand;
-    });
 
-    for (final card in cards) 
+  void setHand(List<Card> newHand)
+  {
+    final Map<Card, CardComponent> existing = {
+      for (CardComponent cardComponent in _cardComponents) cardComponent.card: cardComponent
+    };
+
+    final List<CardComponent> newComponents = [];
+
+    for (int i = 0; i < newHand.length; ++i)
     {
-      final alreadyShown = _cardComponents.any((component) => component.card == card);
-      if (!alreadyShown)
+      final card = newHand[i];
+
+      final targetPosition = _calculateCardPosition(i, newHand.length);
+
+      CardComponent component;
+
+      if (existing.containsKey(card))
       {
-        final cardComponent = CardComponent(card: card)..position = anchorPosition.clone();
-        _cardComponents.add(cardComponent);
-        add(cardComponent);
+        component = existing[card]!;
+
+        component.add(
+          MoveToEffect(targetPosition,
+          EffectController(duration: 0.3))
+        );
+      } else {
+        component = CardComponent(card: card)..position = targetPosition;
+
+        add(component);
       }
+
+      newComponents.add(component);
     }
-    _layout();
+
+    _cardComponents = newComponents;
   }
 
-  void _layout()
+  Vector2 getNextCardPosition()
   {
-    final count = _cardComponents.length;
-    if (count == 0) return;
+    final index = _cardComponents.length;
 
-    final totalWidth = (count - 1) * _cardSpacing + CardComponent.cardWidth;
-    final startX = anchorPosition.x - totalWidth / 2 + CardComponent.cardWidth / 2;
+    final startX = anchorPosition.x - (index * _cardSpacing) / 2;
 
-    for (int i = 0; i < count; ++i)
-    {
-      final targetPosition = Vector2(startX + i * _cardSpacing, anchorPosition.y);
+    return Vector2(
+      startX + index * _cardSpacing,
+      anchorPosition.y
+    );
+  }
+  
+  Vector2 _calculateCardPosition(int index, int length)
+  {
+    final totalWidth = (length - 1) * _cardSpacing;
 
-      _cardComponents[i].children.whereType<MoveToEffect>().toList().forEach((effect) => effect.removeFromParent());
-      _cardComponents[i].add(MoveToEffect(targetPosition, EffectController(duration: 0.25)));
-    }
+    final startX = anchorPosition.x - (totalWidth / 2);
+
+    final x = startX + index * _cardSpacing;
+
+    return Vector2(x, anchorPosition.y);
   }
 }

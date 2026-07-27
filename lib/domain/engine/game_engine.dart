@@ -30,7 +30,11 @@ class GameEngine
   void _startRound(int handSize)
   {
     InitialDeal.dealInitialHands(state.players, state.board, handSize: handSize);
+  }
 
-    print('Mano del Jugador 1: ${state.players.first.hand}');
+  void drawFromDeck()
+  {
+    final card = state.board.drawFromDeck();
+    state.currentPlayer.addCard(card);
   }
 }
