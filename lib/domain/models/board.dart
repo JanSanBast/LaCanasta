@@ -16,6 +16,10 @@ class Board
   Board();
 
 
+  List<Card> get deck => _deck;
+
+  Card get deckPeekCard => _deck.last;
+
   void discard(Card card)
   {
     _discardPile.add(card);
@@ -23,6 +27,7 @@ class Board
 
   Card drawFromDeck()
   {
+    if (_deck.isEmpty) throw Exception('The deck is empty. A card can not be drawed');
     return _deck.removeLast();
   }
 
