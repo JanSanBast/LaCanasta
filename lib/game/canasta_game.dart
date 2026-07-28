@@ -99,13 +99,13 @@ class CanastaGame extends FlameGame
 
       cardComponent.removeFromParent();
       discardPileComponent.addCard(cardComponent.card);
-
-      handComponent.setHand(gameEngine.state.currentPlayer.hand);
-
-      print('Monton: ${gameEngine.state.board.discardPile}');
-    } else
+    } 
+    else if (handComponent.isCardOverHand(cardComponent))
     {
-      handComponent.returnCardToHand();
-    }
+      final newIndex = handComponent.computeDropIndex(cardComponent);
+      gameEngine.reorderHandCard(cardComponent.card, newIndex);
+    } 
+
+    handComponent.setHand(gameEngine.state.currentPlayer.hand);
   }
 }

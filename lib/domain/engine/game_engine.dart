@@ -51,4 +51,9 @@ class GameEngine
     state.currentPlayer.removeCard(card);
     state.board.discardCard(card);
   }
+
+  void reorderHandCard(Card card, int newIndex)
+  {
+    state.currentPlayer.moveCard(card, newIndex);
+  }
 }
