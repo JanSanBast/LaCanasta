@@ -7,9 +7,9 @@ class CardComponent extends SpriteComponent with DragCallbacks
 {
   final Card card;
 
-  static const double cardWidth = 40.3; // Pixels del sprite original: 47
+  static const double cardWidth = 47; // Pixels del sprite original: 47
 
-  static const double cardHeight = 54; // Pixels del sprite original: 63
+  static const double cardHeight = 63; // Pixels del sprite original: 63
 
   bool draggable = false; // Por defecto las cartas no son arrastrables. Solo lo serán las cartas de la mano del jugador
 

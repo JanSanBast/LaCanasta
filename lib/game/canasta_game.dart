@@ -12,7 +12,7 @@ import 'package:flame/game.dart';
 
 class CanastaGame extends FlameGame 
 {
-  static final screenSize = Vector2(600, 400);
+  static final screenSize = Vector2(800, 450);
 
   late HandComponent handComponent;
 
