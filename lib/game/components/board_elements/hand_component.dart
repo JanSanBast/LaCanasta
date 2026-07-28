@@ -11,6 +11,8 @@ class HandComponent extends PositionComponent
 
   List<CardComponent> _cardComponents = [];
 
+  void Function(CardComponent card)? onCardDropped;
+
   HandComponent({required this.anchorPosition});
 
 
@@ -44,6 +46,11 @@ class HandComponent extends PositionComponent
         add(component);
       }
 
+      component.draggable = true; // Indicamos que las cartas de la mano del jugador son arrastrables
+      component.priority = i; // Mantiene el orden de pintado de las cartas (izquierda --> mas abajo, derecha --> mas arriba)
+      component.onCardDropped = onCardDropped;
+      component.onDragStarted = _onCardDragStarted;
+
       newComponents.add(component);
     }
 
@@ -71,5 +78,33 @@ class HandComponent extends PositionComponent
     final x = startX + index * _cardSpacing;
 
     return Vector2(x, anchorPosition.y);
+  }
+
+  void returnCardToHand()
+  {
+    for (int i = 0; i < _cardComponents.length; ++i)
+    {
+      final component = _cardComponents[i];
+      final targetPosition = _calculateCardPosition(i, _cardComponents.length);
+
+      component.priority = i;
+      component.add(
+        MoveToEffect(targetPosition, EffectController(duration: 0.25))
+      );
+    }
+  }
+
+  void _onCardDragStarted(CardComponent draggedCard)
+  {
+    final remaining = _cardComponents.where((c) => c != draggedCard).toList();
+
+    for (int i = 0; i < remaining.length; ++i)
+    {
+      final targetPosition = _calculateCardPosition(i, remaining.length);
+
+      remaining[i].add(
+        MoveToEffect(targetPosition, EffectController(duration: 0.2))
+      );
+    }
   }
 }

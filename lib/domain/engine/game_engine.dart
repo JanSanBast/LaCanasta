@@ -1,4 +1,5 @@
 import 'package:canasta_app/domain/models/board.dart';
+import 'package:canasta_app/domain/models/card.dart';
 import 'package:canasta_app/domain/models/player.dart';
 import 'package:canasta_app/domain/rules/deck_factory.dart';
 import 'package:canasta_app/domain/rules/initial_deal.dart';
@@ -32,9 +33,22 @@ class GameEngine
     InitialDeal.dealInitialHands(state.players, state.board, handSize: handSize);
   }
 
+  Card startDiscardPile()
+  {
+    final card = state.board.drawFromDeck();
+    state.board.discardCard(card);
+    return card;
+  }
+
   void drawFromDeck()
   {
     final card = state.board.drawFromDeck();
     state.currentPlayer.addCard(card);
+  }
+
+  void discardCard(Card card)
+  {
+    state.currentPlayer.removeCard(card);
+    state.board.discardCard(card);
   }
 }
