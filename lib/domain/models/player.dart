@@ -47,6 +47,18 @@ class Player
     }
   }
 
+  void moveCard(Card card, int newIndex)
+  {
+    final currentIndex = _hand.indexOf(card);
+
+    if (currentIndex == -1) throw Exception('Card not found in hand');
+
+    _hand.removeAt(currentIndex);
+
+    final clampedIndex = newIndex.clamp(0, _hand.length);
+    _hand.insert(clampedIndex, card);
+  }
+
   bool hasCard(Card card)
   {
     return _hand.contains(card);

@@ -19,6 +19,8 @@ class CardComponent extends SpriteComponent with DragCallbacks
 
   void Function(CardComponent card)? onDragStarted;
 
+  void Function(CardComponent card)? onDragUpdated;
+
   CardComponent({required this.card})
     : super(size: Vector2(cardWidth, cardHeight), anchor: Anchor.center);
 
@@ -46,6 +48,7 @@ class CardComponent extends SpriteComponent with DragCallbacks
     if (!_isDragging) return;
 
     position += event.localDelta;
+    onDragUpdated?.call(this);
   }
 
   @override
