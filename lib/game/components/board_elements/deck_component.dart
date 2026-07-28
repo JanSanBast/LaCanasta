@@ -13,7 +13,10 @@ class DeckComponent extends PositionComponent with HasGameReference<CanastaGame>
     Vector2? cardSize,
     super.position,
     super.anchor = Anchor.center,
-  }) : cardSize = cardSize ?? Vector2(40.3, 54);
+  }) : cardSize = cardSize ?? Vector2(40.3, 54)
+  {
+    size = this.cardSize;
+  }
   
   @override
   Future<void> onLoad() async
@@ -26,7 +29,7 @@ class DeckComponent extends PositionComponent with HasGameReference<CanastaGame>
         ..sprite = sprite
         ..size = cardSize
         ..anchor = Anchor.center
-        ..position = Vector2(-i * 1.0, -i * 1.0);
+        ..position = size / 2 - Vector2(i * 1.0, i * 1.0);
 
       add(card);
     }
@@ -36,11 +39,5 @@ class DeckComponent extends PositionComponent with HasGameReference<CanastaGame>
   void onTapDown(TapDownEvent event)
   {
     game.onDeckTapped();
-  }
-
-  @override
-  bool containsLocalPoint(Vector2 point)
-  {
-    return true;
   }
 }
