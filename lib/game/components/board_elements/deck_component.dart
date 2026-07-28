@@ -1,4 +1,5 @@
 import 'package:canasta_app/game/canasta_game.dart';
+import 'package:canasta_app/game/components/card/card_component.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 
@@ -13,7 +14,7 @@ class DeckComponent extends PositionComponent with HasGameReference<CanastaGame>
     Vector2? cardSize,
     super.position,
     super.anchor = Anchor.center,
-  }) : cardSize = cardSize ?? Vector2(40.3, 54)
+  }) : cardSize = cardSize ?? Vector2(CardComponent.cardWidth, CardComponent.cardHeight)
   {
     size = this.cardSize;
   }
