@@ -7,6 +7,8 @@ class HandComponent extends PositionComponent
 {
   static const double _cardSpacing = 22;
 
+  static const double _selectionLift = 14;
+
   final Vector2 anchorPosition;
 
   List<CardComponent> _cardComponents = [];
@@ -31,14 +33,16 @@ class HandComponent extends PositionComponent
     for (int i = 0; i < newHand.length; ++i)
     {
       final card = newHand[i];
+      final existingComponent = existing[card];
+      final isSelected = existingComponent?.selected ?? false;
 
-      final targetPosition = _calculateCardPosition(i, newHand.length);
+      final targetPosition = _calculateCardPosition(i, newHand.length, selected: isSelected);
 
       CardComponent component;
 
-      if (existing.containsKey(card))
+      if (existingComponent != null)
       {
-        component = existing[card]!;
+        component = existingComponent;
 
         component.add(
           MoveToEffect(targetPosition,
@@ -55,12 +59,15 @@ class HandComponent extends PositionComponent
       component.onCardDropped = onCardDropped;
       component.onDragStarted = _updateDragPreview;
       component.onDragUpdated = _updateDragPreview;
+      component.onCardTapped = _handleCardTapped;
 
       newComponents.add(component);
     }
 
     _cardComponents = newComponents;
   }
+
+  List<CardComponent> get selectedCards => _cardComponents.where((c) => c.selected).toList();
 
   Vector2 getNextCardPosition()
   {
@@ -74,15 +81,16 @@ class HandComponent extends PositionComponent
     );
   }
   
-  Vector2 _calculateCardPosition(int index, int length)
+  Vector2 _calculateCardPosition(int index, int length, {bool selected = false})
   {
     final totalWidth = (length - 1) * _cardSpacing;
 
     final startX = anchorPosition.x - (totalWidth / 2);
 
     final x = startX + index * _cardSpacing;
+    final y = anchorPosition.y - (selected ? _selectionLift : 0);
 
-    return Vector2(x, anchorPosition.y);
+    return Vector2(x, y);
   }
 
   void returnCardToHand()
@@ -95,6 +103,25 @@ class HandComponent extends PositionComponent
       component.priority = i;
       component.add(
         MoveToEffect(targetPosition, EffectController(duration: 0.25))
+      );
+    }
+  }
+
+  void _handleCardTapped(CardComponent card)
+  {
+    card.setSelected(!card.selected);
+    _repositionCards();
+  }
+
+  void _repositionCards()
+  {
+    for (int i = 0; i < _cardComponents.length; ++i)
+    {
+      final component = _cardComponents[i];
+      final targetPosition = _calculateCardPosition(i, _cardComponents.length, selected: component.selected);
+
+      component.add(
+        MoveToEffect(targetPosition, EffectController(duration: 0.15))
       );
     }
   }
@@ -120,7 +147,7 @@ class HandComponent extends PositionComponent
     for (int i = 0; i < remaining.length; ++i)
     {
       final slot = i < targetIndex ? i : i + 1;
-      final targetPosition = _calculateCardPosition(slot, totalSlots);
+      final targetPosition = _calculateCardPosition(slot, totalSlots, selected: remaining[i].selected);
 
       remaining[i].add(
         MoveToEffect(targetPosition, EffectController(duration: 0.2))
@@ -136,7 +163,7 @@ class HandComponent extends PositionComponent
 
     for (int i = 0; i < remaining.length; ++i)
     {
-      final targetPosition = _calculateCardPosition(i, remaining.length);
+      final targetPosition = _calculateCardPosition(i, remaining.length, selected: remaining[i].selected);
       remaining[i].add(
         MoveToEffect(targetPosition, EffectController(duration: 0.2))
       );

@@ -2,8 +2,9 @@ import 'package:canasta_app/domain/models/card.dart';
 import 'package:canasta_app/game/components/card/card_sprite_resolver.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'package:flutter/cupertino.dart';
 
-class CardComponent extends SpriteComponent with DragCallbacks
+class CardComponent extends SpriteComponent with DragCallbacks, TapCallbacks
 {
   final Card card;
 
@@ -13,13 +14,19 @@ class CardComponent extends SpriteComponent with DragCallbacks
 
   bool draggable = false; // Por defecto las cartas no son arrastrables. Solo lo serán las cartas de la mano del jugador
 
+  bool selected = false;
+
   bool _isDragging = false;
+
+  RectangleComponent? _selectionHighlight;
 
   void Function(CardComponent card)? onCardDropped;
 
   void Function(CardComponent card)? onDragStarted;
 
   void Function(CardComponent card)? onDragUpdated;
+
+  void Function(CardComponent card)? onCardTapped;
 
   CardComponent({required this.card})
     : super(size: Vector2(cardWidth, cardHeight), anchor: Anchor.center);
@@ -28,6 +35,36 @@ class CardComponent extends SpriteComponent with DragCallbacks
   Future<void> onLoad() async
   {
     sprite = await Sprite.load(CardSpriteResolver.pathFor(card));
+  }
+
+  void setSelected(bool value)
+  {
+    if (selected == value) return;
+    selected = value;
+
+    if (selected)
+    {
+      _selectionHighlight ??= RectangleComponent(
+        size: size + Vector2.all(6),
+        position: size / 2,
+        anchor: Anchor.center,
+        paint: Paint()..color = const Color(0x664FC3F7),
+        priority: -1
+      );
+
+      add(_selectionHighlight!);
+    } else {
+      _selectionHighlight?.removeFromParent();
+      _selectionHighlight = null;
+    }
+  }
+
+  @override
+  void onTapDown(TapDownEvent event)
+  {
+    if (!draggable) return;
+
+    onCardTapped?.call(this);
   }
 
   @override
