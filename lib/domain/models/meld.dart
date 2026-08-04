@@ -12,7 +12,7 @@ class Meld
 
   static const _uuid = Uuid();
 
-  Meld({required this.baseValue, required List<Card> cards}) : id = _uuid.v4(), _cards = List.unmodifiable(cards);
+  Meld({required this.baseValue, required List<Card> cards}) : id = _uuid.v4(), _cards = List.of(cards);
 
 
   List<Card> get cards => List.unmodifiable(_cards);
@@ -27,11 +27,6 @@ class Meld
 
   void addCards(List<Card> cards) // Para simplificar funciones, solo se añadirán cartas mediante una Lista, ya sea de uno o más elementos.
   {
-    for (final card in cards) {
-      if (!canAcceptCard(card)) {
-        throw Exception('Cannot add card to meld: ${card.toString()}'); // Si no se puede añadir una carta, no se añade ninguna de las cartas a la canasta.
-      }
-    }
     _cards.addAll(cards);
   }
 
