@@ -1,3 +1,5 @@
+import 'dart:async' as async;
+
 import 'package:canasta_app/domain/models/card.dart';
 import 'package:canasta_app/game/components/card/card_sprite_resolver.dart';
 import 'package:flame/components.dart';
@@ -12,11 +14,15 @@ class CardComponent extends SpriteComponent with DragCallbacks, TapCallbacks
 
   static const double cardHeight = 63; // Pixels del sprite original: 63
 
+  static const Duration _tapConfirmDelay = Duration(milliseconds: 70);
+
   bool draggable = false; // Por defecto las cartas no son arrastrables. Solo lo serán las cartas de la mano del jugador
 
   bool selected = false;
 
-  bool _isDragging = false;
+  int _originalPriority = 0;
+
+  async.Timer? _tapConfirmTimer;
 
   RectangleComponent? _selectionHighlight;
 
@@ -35,6 +41,21 @@ class CardComponent extends SpriteComponent with DragCallbacks, TapCallbacks
   Future<void> onLoad() async
   {
     sprite = await Sprite.load(CardSpriteResolver.pathFor(card));
+  }
+
+  @override
+  void onRemove()
+  {
+    _tapConfirmTimer?.cancel();
+    _tapConfirmTimer = null;
+    super.onRemove();
+  }
+
+  @override
+  void setOpacity(double opacity, {Object? paintId})
+  {
+    super.setOpacity(opacity);
+    _selectionHighlight?.setOpacity(opacity);
   }
 
   void setSelected(bool value)
@@ -64,6 +85,16 @@ class CardComponent extends SpriteComponent with DragCallbacks, TapCallbacks
   {
     if (!draggable) return;
 
+    _tapConfirmTimer?.cancel();
+    _tapConfirmTimer = async.Timer(_tapConfirmDelay, _confirmTap);
+  }
+
+  void _confirmTap()
+  {
+    _tapConfirmTimer = null;
+    if (!isMounted) return;
+    if (isDragged) return;
+
     onCardTapped?.call(this);
   }
 
@@ -72,18 +103,20 @@ class CardComponent extends SpriteComponent with DragCallbacks, TapCallbacks
   {
     if (!draggable) return;
 
+    _tapConfirmTimer?.cancel();
+    _tapConfirmTimer = null;
+
     super.onDragStart(event);
 
-    _isDragging = true;
-    priority = 1000; // Esto hará que se pinte la carta que se esta desplazando por encima de las demás
+    _originalPriority = priority;
+    priority = 1000;
+
     onDragStarted?.call(this);
   }
 
   @override
   void onDragUpdate(DragUpdateEvent event)
   {
-    if (!_isDragging) return;
-
     position += event.localDelta;
     onDragUpdated?.call(this);
   }
@@ -92,10 +125,15 @@ class CardComponent extends SpriteComponent with DragCallbacks, TapCallbacks
   void onDragEnd(DragEndEvent event)
   {
     super.onDragEnd(event);
+    onCardDropped?.call(this);
+  }
 
-    if (!_isDragging) return;
+  @override
+  void onDragCancel(DragCancelEvent event)
+  {
+    super.onDragCancel(event);
 
-    _isDragging = false;
+    priority = _originalPriority;
     onCardDropped?.call(this);
   }
 }
