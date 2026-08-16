@@ -78,6 +78,26 @@ class Board
     );
   }
 
+  Meld openMeld({required String ownerId, required CardValue baseValue, required List<Card> cards})
+  {
+    final meld = Meld(baseValue: baseValue, cards: cards);
+    _meldsByOwner.putIfAbsent(ownerId, () => []).add(meld);
+
+    return meld;
+  }
+
+  List<Meld> meldsFor(String ownerId) => List.unmodifiable(_meldsByOwner[ownerId] ?? const []);
+
+  List<Meld> closedMeldsFor(String ownerId) => meldsFor(ownerId).where((meld) => meld.isClosed).toList();
+
+  Meld? findOpenMeldByValue(String ownerId, CardValue value)
+  {
+    final melds = _meldsByOwner[ownerId];
+    if (melds == null) return null;
+
+    return melds.firstWhere((meld) => meld.baseValue == value && !meld.isClosed);
+  }
+
   void addCardsToDeck(List<Card> cards)
   {
     _deck.addAll(cards);

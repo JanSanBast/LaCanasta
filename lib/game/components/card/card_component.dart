@@ -1,9 +1,12 @@
+import 'dart:async' as async;
+
 import 'package:canasta_app/domain/models/card.dart';
 import 'package:canasta_app/game/components/card/card_sprite_resolver.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'package:flutter/cupertino.dart';
 
-class CardComponent extends SpriteComponent with DragCallbacks
+class CardComponent extends SpriteComponent with DragCallbacks, TapCallbacks
 {
   final Card card;
 
@@ -11,15 +14,25 @@ class CardComponent extends SpriteComponent with DragCallbacks
 
   static const double cardHeight = 63; // Pixels del sprite original: 63
 
+  static const Duration _tapConfirmDelay = Duration(milliseconds: 70);
+
   bool draggable = false; // Por defecto las cartas no son arrastrables. Solo lo serán las cartas de la mano del jugador
 
-  bool _isDragging = false;
+  bool selected = false;
+
+  int _originalPriority = 0;
+
+  async.Timer? _tapConfirmTimer;
+
+  RectangleComponent? _selectionHighlight;
 
   void Function(CardComponent card)? onCardDropped;
 
   void Function(CardComponent card)? onDragStarted;
 
   void Function(CardComponent card)? onDragUpdated;
+
+  void Function(CardComponent card)? onCardTapped;
 
   CardComponent({required this.card})
     : super(size: Vector2(cardWidth, cardHeight), anchor: Anchor.center);
@@ -31,22 +44,79 @@ class CardComponent extends SpriteComponent with DragCallbacks
   }
 
   @override
+  void onRemove()
+  {
+    _tapConfirmTimer?.cancel();
+    _tapConfirmTimer = null;
+    super.onRemove();
+  }
+
+  @override
+  void setOpacity(double opacity, {Object? paintId})
+  {
+    super.setOpacity(opacity);
+    _selectionHighlight?.setOpacity(opacity);
+  }
+
+  void setSelected(bool value)
+  {
+    if (selected == value) return;
+    selected = value;
+
+    if (selected)
+    {
+      _selectionHighlight ??= RectangleComponent(
+        size: size + Vector2.all(6),
+        position: size / 2,
+        anchor: Anchor.center,
+        paint: Paint()..color = const Color(0x664FC3F7),
+        priority: -1
+      );
+
+      add(_selectionHighlight!);
+    } else {
+      _selectionHighlight?.removeFromParent();
+      _selectionHighlight = null;
+    }
+  }
+
+  @override
+  void onTapDown(TapDownEvent event)
+  {
+    if (!draggable) return;
+
+    _tapConfirmTimer?.cancel();
+    _tapConfirmTimer = async.Timer(_tapConfirmDelay, _confirmTap);
+  }
+
+  void _confirmTap()
+  {
+    _tapConfirmTimer = null;
+    if (!isMounted) return;
+    if (isDragged) return;
+
+    onCardTapped?.call(this);
+  }
+
+  @override
   void onDragStart(DragStartEvent event)
   {
     if (!draggable) return;
 
+    _tapConfirmTimer?.cancel();
+    _tapConfirmTimer = null;
+
     super.onDragStart(event);
 
-    _isDragging = true;
-    priority = 1000; // Esto hará que se pinte la carta que se esta desplazando por encima de las demás
+    _originalPriority = priority;
+    priority = 1000;
+
     onDragStarted?.call(this);
   }
 
   @override
   void onDragUpdate(DragUpdateEvent event)
   {
-    if (!_isDragging) return;
-
     position += event.localDelta;
     onDragUpdated?.call(this);
   }
@@ -55,10 +125,15 @@ class CardComponent extends SpriteComponent with DragCallbacks
   void onDragEnd(DragEndEvent event)
   {
     super.onDragEnd(event);
+    onCardDropped?.call(this);
+  }
 
-    if (!_isDragging) return;
+  @override
+  void onDragCancel(DragCancelEvent event)
+  {
+    super.onDragCancel(event);
 
-    _isDragging = false;
+    priority = _originalPriority;
     onCardDropped?.call(this);
   }
 }
