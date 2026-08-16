@@ -6,9 +6,9 @@ import 'package:flutter/material.dart' hide Card;
 
 class HandComponent extends PositionComponent
 {
-  static const double _cardSpacing = 22;
+  static const double _cardSpacing = 31;
 
-  static const double _selectionLift = 14;
+  static const double _selectionLift = 20;
 
   static const int _maxVisibleFollowers = 3;
 

@@ -9,7 +9,7 @@ class BackgroundComponent extends SpriteComponent
   @override
   Future<void> onLoad() async
   {
-    sprite = await Sprite.load('backgrounds/background_2.png');
+    sprite = await Sprite.load('backgrounds/background_4.png');
     size = _screenSize;
   }
 }

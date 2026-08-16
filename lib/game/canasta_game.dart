@@ -5,14 +5,13 @@ import 'package:canasta_app/game/components/background/background_component.dart
 import 'package:canasta_app/game/components/board_elements/deck_component.dart';
 import 'package:canasta_app/game/components/board_elements/discard_pile_component.dart';
 import 'package:canasta_app/game/components/board_elements/hand_component.dart';
-import 'package:canasta_app/game/components/background/table_component.dart';
 import 'package:canasta_app/game/components/card/card_component.dart';
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 
 class CanastaGame extends FlameGame 
 {
-  static final screenSize = Vector2(960, 540);
+  static final screenSize = Vector2(540, 960);
 
   late HandComponent handComponent;
 
@@ -37,18 +36,19 @@ class CanastaGame extends FlameGame
     await images.loadAllImages();
 
     world.add(BackgroundComponent(screenSize: screenSize));
-    world.add(TableComponent(screenSize: screenSize));
 
     gameEngine = GameEngine.newGame(['Jugador 1'], handSize: 11); // Cambiar el 11 por una variable según el número de cartas que requiera el modo
 
-    deckComponent = DeckComponent(position: Vector2(screenSize.x / 2 + 35, screenSize.y / 2),)..priority = 1;
+    final tableCenter = screenSize / 2;
+
+    deckComponent = DeckComponent(position: Vector2(tableCenter.x - 50, tableCenter.y),)..priority = 1;
     world.add(deckComponent);
 
-    handComponent = HandComponent(anchorPosition: Vector2(screenSize.x / 2, screenSize.y - 35),)..priority = 2..onCardDropped = _onHandCardDropped; // Con la priority = 2 nos aseguramos que las cartas de la mano se vean por encima de las de deck y discardPile
-    world.add(handComponent);
-
-    discardPileComponent = DiscardPileComponent(position: Vector2(screenSize.x / 2 - 35, screenSize.y / 2),)..priority = 1;
+    discardPileComponent = DiscardPileComponent(position: Vector2(screenSize.x / 2 + 50, screenSize.y / 2),)..priority = 1;
     world.add(discardPileComponent);
+
+    handComponent = HandComponent(anchorPosition: Vector2(screenSize.x / 2, screenSize.y - 55),)..priority = 2..onCardDropped = _onHandCardDropped; // Con la priority = 2 nos aseguramos que las cartas de la mano se vean por encima de las de deck y discardPile
+    world.add(handComponent);
 
     handComponent.setHand(gameEngine.state.players.first.hand);
     _startInitialDiscard();

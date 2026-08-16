@@ -10,9 +10,9 @@ class CardComponent extends SpriteComponent with DragCallbacks, TapCallbacks
 {
   final Card card;
 
-  static const double cardWidth = 47; // Pixels del sprite original: 47
+  static const double cardWidth = 66; // Pixels del sprite original: 47
 
-  static const double cardHeight = 63; // Pixels del sprite original: 63
+  static const double cardHeight = 88; // Pixels del sprite original: 63
 
   static const Duration _tapConfirmDelay = Duration(milliseconds: 70);
 
