@@ -8,9 +8,9 @@ class HandComponent extends PositionComponent
 {
   static const double _maxHandWidth = 440;
 
-  static const double _stackStepCollapsed = 8;
+  static const double _stackStepCollapsed = 5;
 
-  static const double _stackStepExpanded = 20;
+  static const double _stackStepExpanded = 15;
 
   static final int _maxSlots = CardValue.values.length;
 

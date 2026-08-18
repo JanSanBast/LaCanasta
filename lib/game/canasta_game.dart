@@ -5,6 +5,7 @@ import 'package:canasta_app/game/components/background/background_component.dart
 import 'package:canasta_app/game/components/board_elements/deck_component.dart';
 import 'package:canasta_app/game/components/board_elements/discard_pile_component.dart';
 import 'package:canasta_app/game/components/board_elements/hand_component.dart';
+import 'package:canasta_app/game/components/board_elements/meld_zone_component.dart';
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 
@@ -17,6 +18,10 @@ class CanastaGame extends FlameGame
   late DeckComponent deckComponent;
 
   late DiscardPileComponent discardPileComponent;
+
+  late MeldZoneComponent playerMeldZone;
+
+  late MeldZoneComponent opponentMeldZone;
 
   late final GameEngine gameEngine;
 
@@ -51,6 +56,14 @@ class CanastaGame extends FlameGame
 
     handComponent.setHand(gameEngine.state.players.first.hand);
     _startInitialDiscard();
+
+    final zoneSize = Vector2(480, 280);
+
+    playerMeldZone = MeldZoneComponent(zoneSize: zoneSize, interactive: true, position: Vector2(screenSize.x / 2, 692));
+    world.add(playerMeldZone);
+
+    opponentMeldZone = MeldZoneComponent(zoneSize: zoneSize, interactive: false, position: Vector2(screenSize.x / 2, 160));
+    world.add(opponentMeldZone);
   }
 
   void _startInitialDiscard()
