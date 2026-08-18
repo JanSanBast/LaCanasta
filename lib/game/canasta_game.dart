@@ -64,6 +64,8 @@ class CanastaGame extends FlameGame
 
     opponentMeldZone = MeldZoneComponent(zoneSize: zoneSize, interactive: false, position: Vector2(screenSize.x / 2, 160));
     world.add(opponentMeldZone);
+
+    _refreshMeldZones();
   }
 
   void _startInitialDiscard()
@@ -99,5 +101,10 @@ class CanastaGame extends FlameGame
        }
       )
     );
+  }
+
+  void _refreshMeldZones()
+  {
+    playerMeldZone.setMelds(gameEngine.state.board.meldsFor(gameEngine.state.players.first.id));
   }
 }
