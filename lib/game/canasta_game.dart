@@ -5,7 +5,6 @@ import 'package:canasta_app/game/components/background/background_component.dart
 import 'package:canasta_app/game/components/board_elements/deck_component.dart';
 import 'package:canasta_app/game/components/board_elements/discard_pile_component.dart';
 import 'package:canasta_app/game/components/board_elements/hand_component.dart';
-import 'package:canasta_app/game/components/card/card_component.dart';
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 
@@ -47,7 +46,7 @@ class CanastaGame extends FlameGame
     discardPileComponent = DiscardPileComponent(position: Vector2(screenSize.x / 2 + 50, screenSize.y / 2),)..priority = 1;
     world.add(discardPileComponent);
 
-    handComponent = HandComponent(anchorPosition: Vector2(screenSize.x / 2, screenSize.y - 55),)..priority = 2..onCardDropped = _onHandCardDropped; // Con la priority = 2 nos aseguramos que las cartas de la mano se vean por encima de las de deck y discardPile
+    handComponent = HandComponent(anchorPosition: Vector2(screenSize.x / 2, screenSize.y - 55),)..priority = 2; // Con la priority = 2 nos aseguramos que las cartas de la mano se vean por encima de las de deck y discardPile
     world.add(handComponent);
 
     handComponent.setHand(gameEngine.state.players.first.hand);
@@ -87,25 +86,5 @@ class CanastaGame extends FlameGame
        }
       )
     );
-  }
-
-  void _onHandCardDropped(CardComponent cardComponent)
-  {
-    final droppedOnDiscardPile = world.componentsAtPoint(cardComponent.absoluteCenter).whereType<DiscardPileComponent>().isNotEmpty;
-
-    if (droppedOnDiscardPile)
-    {
-      gameEngine.discardCard(cardComponent.card);
-
-      cardComponent.removeFromParent();
-      discardPileComponent.addCard(cardComponent.card);
-    } 
-    else if (handComponent.isCardOverHand(cardComponent))
-    {
-      final newIndex = handComponent.computeDropIndex(cardComponent);
-      gameEngine.reorderHandCard(cardComponent.card, newIndex);
-    } 
-
-    handComponent.setHand(gameEngine.state.currentPlayer.hand);
   }
 }
